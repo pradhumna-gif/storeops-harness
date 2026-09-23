@@ -1,0 +1,14 @@
+﻿# Local run evidence (node dist/server.js) - 2026-09-23 09:40:30
+
+## GET /health
+{"status":"UP","service":"StoreOps"}
+
+## PATCH /api/activities/bulk-status (x-user-id: associate-1)  ids=[task-1, task-2, missing] status=BLOCKED
+{"updated":["task-1"],"failed":[{"id":"task-2","code":"FORBIDDEN","message":"Actor cannot update activity task-2"},{"id":"missing","code":"ACTIVITY_NOT_FOUND","message":"Activity missing was not found"}]}
+
+## GET /api/alerts (x-user-id: lead-1) - SHIFT_HANDOVER alert raised via EventBus
+[{"id":"alert-1790136630932","userId":"lead-1","type":"SHIFT_HANDOVER","message":"Activity task-1 is blocked","status":"UNREAD","channel":"IN_APP"}]
+
+## PATCH bulk-status with invalid status
+HTTP 400
+
