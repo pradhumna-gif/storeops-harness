@@ -26,7 +26,7 @@
 - [x] Final code in `src/`
 - [x] `DEPLOYMENT.md` + `evidence/16_BULK_STATUS_ENDPOINT.png` + `evidence/18_LOCAL_RUN_LOG.txt`
 - [x] `REFLECTION.md`: a specific limitation seen in the run, concrete improvements, linked to Design Brief D2
-- [ ] `evidence/19_DOCKER_PS.png` and `evidence/20_DOCKER_BULK_STATUS.png` (need Docker Desktop)
+- [x] `evidence/19_DOCKER_PS.png` (container Up, healthy) and `evidence/20_DOCKER_BULK_STATUS.png` (the new endpoint answered by the container)
 - [ ] Screenshot of the developer typing `APPROVED` (if available from the run session)
 
 ## Bonus

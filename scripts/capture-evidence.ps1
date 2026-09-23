@@ -28,7 +28,7 @@ function Capture-Console([string]$script, [string]$outFile, [int]$waitSeconds) {
   Set-Content -Path $tmp -Value $body -Encoding UTF8
   Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmp`""
   $h = [IntPtr]::Zero
-  $deadline = (Get-Date).AddSeconds(20)
+  $deadline = (Get-Date).AddSeconds(45)
   while ($h -eq [IntPtr]::Zero -and (Get-Date) -lt $deadline) {
     Start-Sleep -Milliseconds 400
     $win = Get-Process | Where-Object { $_.MainWindowTitle -like "*$title*" } | Select-Object -First 1
@@ -56,13 +56,21 @@ function Capture-Console([string]$script, [string]$outFile, [int]$waitSeconds) {
 $bulk = @'
 Write-Host "PS> Invoke-RestMethod PATCH /api/activities/bulk-status  (x-user-id: associate-1)" -ForegroundColor Yellow
 Write-Host '    body: {"ids":["task-1","task-2","missing"],"status":"BLOCKED"}' -ForegroundColor Yellow
-Invoke-RestMethod -Uri http://localhost:3000/api/activities/bulk-status -Method PATCH -ContentType application/json -Headers @{"x-user-id"="associate-1"} -Body '{"ids":["task-1","task-2","missing"],"status":"BLOCKED"}' | ConvertTo-Json -Depth 5
-Write-Host "`nPS> Invoke-RestMethod GET /api/alerts  (x-user-id: lead-1)   # SHIFT_HANDOVER alert delivered via EventBus" -ForegroundColor Yellow
-Invoke-RestMethod -Uri http://localhost:3000/api/alerts -Headers @{"x-user-id"="lead-1"} | ConvertTo-Json -Depth 5
+$r = Invoke-RestMethod -Uri http://localhost:3000/api/activities/bulk-status -Method PATCH -ContentType application/json -Headers @{"x-user-id"="associate-1"} -Body '{"ids":["task-1","task-2","missing"],"status":"BLOCKED"}'
+Write-Host "updated: [$($r.updated -join ', ')]" -ForegroundColor Green
+Write-Host "failed:" -ForegroundColor Red
+$r.failed | Format-Table id, code, message -AutoSize | Out-String -Width 160 | Write-Host
+Write-Host "PS> Invoke-RestMethod GET /api/activities/task-1   # persisted state" -ForegroundColor Yellow
+Invoke-RestMethod http://localhost:3000/api/activities/task-1 | Format-Table id, title, status, assigneeId, updatedAt -AutoSize | Out-String -Width 160 | Write-Host
+Write-Host "PS> Invoke-RestMethod GET /api/alerts  (x-user-id: lead-1)   # SHIFT_HANDOVER alert delivered via EventBus" -ForegroundColor Yellow
+Invoke-RestMethod -Uri http://localhost:3000/api/alerts -Headers @{"x-user-id"="lead-1"} | Format-Table userId, type, message, channel -AutoSize | Out-String -Width 160 | Write-Host
+Write-Host "PS> PATCH /api/activities/bulk-status with status TODO   # request-level AppError" -ForegroundColor Yellow
+try { Invoke-WebRequest -Uri http://localhost:3000/api/activities/bulk-status -Method PATCH -ContentType application/json -Body '{"ids":["task-1"],"status":"TODO"}' -UseBasicParsing | Out-Null } catch { Write-Host "HTTP $([int]$_.Exception.Response.StatusCode) $($_.ErrorDetails.Message)" }
 '@
 
 if ($Mode -eq 'docker') {
   $env:Path += ';C:\Program Files\Docker\Docker\resources\bin'
+  docker compose down 2>$null
   docker compose up --build -d
   $deadline = (Get-Date).AddSeconds(90)
   do { Start-Sleep 3; $health = docker inspect -f '{{.State.Health.Status}}' storeops-api 2>$null } until ($health -eq 'healthy' -or (Get-Date) -gt $deadline)
@@ -71,7 +79,7 @@ if ($Mode -eq 'docker') {
 Set-Location '$root'
 Write-Host 'PS> docker --version; docker compose ps' -ForegroundColor Yellow
 docker --version
-docker compose ps
+docker compose ps --format 'table {{.Name}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
 Write-Host "`nPS> docker compose logs storeops" -ForegroundColor Yellow
 docker compose logs storeops
 Write-Host "`nPS> Invoke-RestMethod http://localhost:3000/health" -ForegroundColor Yellow
@@ -88,4 +96,5 @@ Invoke-RestMethod http://localhost:3000/health | ConvertTo-Json
     Capture-Console ("Write-Host 'Server: node dist/server.js (built output, same artefact the Docker image runs)' -ForegroundColor Cyan`n" + $bulk) 'evidence/21_LOCAL_BUILD_BULK_STATUS.png' 6
   } finally { Stop-Process -Id $server.Id -Force }
 }
+
 
