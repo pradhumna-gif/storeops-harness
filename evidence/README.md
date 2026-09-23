@@ -23,4 +23,7 @@ Screenshots captured during the sprint-1 demonstration run and the deployment. T
 | `20_DOCKER_BULK_STATUS.png` | **Docker deployment** | The harness-generated endpoint answered by the container: `updated:[task-1]`, `FORBIDDEN` + `ACTIVITY_NOT_FOUND` partial failures, task-1 persisted `BLOCKED`, `SHIFT_HANDOVER` alert delivered via EventBus, `400 INVALID_BULK_STATUS` |
 | `21_LOCAL_BUILD_BULK_STATUS.png` | Running app | The same calls against `node dist/server.js` |
 
+## Approval gate
+`10_PLANNER_RUN.png` shows the Planner stopping at the gate and asking for `APPROVED`. `11_GENERATOR_RUN.png` shows the Generator stage, which can only start after approval (see `CLAUDE.md`, step 2). The archived `sprint-1-spec.md` and `sprint-1-contract.md` carry `STATUS: APPROVED`, set by the orchestrator when the developer replied. There is no separate screenshot of the reply itself.
+
 Screenshots 19–21 were captured with `scripts/capture-evidence.ps1`, which opens a real console window, runs the commands and captures that window.

@@ -27,12 +27,14 @@
 - [x] `DEPLOYMENT.md` + `evidence/16_BULK_STATUS_ENDPOINT.png` + `evidence/18_LOCAL_RUN_LOG.txt`
 - [x] `REFLECTION.md`: a specific limitation seen in the run, concrete improvements, linked to Design Brief D2
 - [x] `evidence/19_DOCKER_PS.png` (container Up, healthy) and `evidence/20_DOCKER_BULK_STATUS.png` (the new endpoint answered by the container)
-- [ ] Screenshot of the developer typing `APPROVED` (if available from the run session)
+- [x] Approval gate evidence: `10_PLANNER_RUN.png` (gate reached), `11_GENERATOR_RUN.png` (Generator started after approval), `STATUS: APPROVED` in the archived spec and contract. See `evidence/README.md`
+- [x] CI pipeline `.github/workflows/ci.yml` (independent gate: verify, hard-gate scans, build, Docker smoke test)
+- [x] Audit trail index `.harness/reviews/README.md`
 
 ## Bonus
 - [x] `JOURNAL.md` (+10%)
 
 ## Final checks before upload
-1. `npm ci && npm run verify` exits 0 (typecheck, lint 0 errors, arch:check 0 violations, 28/28 tests).
+1. `npm ci && npm run verify` exits 0 (typecheck 0 errors, lint 0 problems, arch:check 0 violations, 28/28 tests).
 2. `npx tsx scripts/evaluate-harness.ts` prints `HARD-GATES: PASS`.
 3. `git status` is clean, and `.harness/reviews/` plus `evidence/` are committed.
