@@ -44,7 +44,10 @@ npm start          # node dist/server.js
 |---|---|
 | `evidence/16_BULK_STATUS_ENDPOINT.png` | Screenshot: running app, `PATCH /api/activities/bulk-status` with `task-1` in `updated` and `missing` in `failed` (`ACTIVITY_NOT_FOUND`) |
 | `evidence/18_LOCAL_RUN_LOG.txt` | Captured output from the built server (`node dist/server.js`): `/health` UP; a bulk request with one authorized, one forbidden and one missing ID → `updated:["task-1"]`, failures `FORBIDDEN` and `ACTIVITY_NOT_FOUND`; then `GET /api/alerts` for `lead-1` shows the `SHIFT_HANDOVER` alert delivered through EventBus; an invalid status → HTTP 400 |
-| `evidence/19_DOCKER_PS.png` | *To capture:* `docker compose ps` showing `storeops-api` Up (healthy) |
-| `evidence/20_DOCKER_BULK_STATUS.png` | *To capture:* the PATCH call above answered by the container |
+| `evidence/21_LOCAL_BUILD_BULK_STATUS.png` | Screenshot: the **built** artefact (`node dist/server.js`, the same file the Docker image runs). The bulk request returns `updated:["task-1"]` with `FORBIDDEN` and `ACTIVITY_NOT_FOUND` failures, and `GET /api/alerts` for `lead-1` shows the `SHIFT_HANDOVER` alert raised through EventBus |
+| `evidence/19_DOCKER_PS.png` | *Captured by* `scripts/capture-evidence.ps1 -Mode docker`: `docker compose ps` showing `storeops-api` Up (healthy), plus container logs and `/health` |
+| `evidence/20_DOCKER_BULK_STATUS.png` | *Captured by the same script:* the bulk-status and alerts calls answered by the container |
+
+Screenshots are taken with `scripts/capture-evidence.ps1`. It opens a real console window, runs the commands, and captures that window.
 
 No live cloud URL is claimed.
